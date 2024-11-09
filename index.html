@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #qr-container {
+            margin-top: 20px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+</head>
+
+<body>
+    <h1>Open QR Code Generator</h1>
+    <p>Generate a QR code for a link and download it as SVG or PNG.</p>
+
+    <!-- Input for URL (optional, default is the specified link) -->
+    <label for="url-input">Enter URL (optional):</label>
+    <input type="text" id="url-input" placeholder="https://lubianat.github.io/natal_bioinformatics2wikidata/"
+        value="https://lubianat.github.io/natal_bioinformatics2wikidata/">
+
+    <!-- Container to display the QR code -->
+    <div id="qr-container"></div>
+
+    <!-- Buttons to download QR code as SVG and PNG -->
+    <button onclick="downloadQRCode('svg')">Download as SVG</button>
+    <button onclick="downloadQRCode('png')">Download as PNG</button>
+
+    <script>
+        // Function to generate QR code
+        function generateQRCode() {
+            const url = document.getElementById('url-input').value;
+            const qrContainer = document.getElementById('qr-container');
+            qrContainer.innerHTML = "";  // Clear existing QR code
+
+            QRCode.toDataURL(url, { margin: 1 }, function (err, url) {
+                if (err) return console.error(err);
+
+                // Create and display the QR code as an image
+                const img = document.createElement("img");
+                img.id = "qr-image";
+                img.src = url;
+                qrContainer.appendChild(img);
+            });
+        }
+
+        // Function to download QR code as SVG or PNG
+        function downloadQRCode(format) {
+            const url = document.getElementById('url-input').value;
+            const filename = "Open QR Code." + format;
+
+            QRCode.toString(url, { type: format, margin: 1 }, function (err, data) {
+                if (err) return console.error(err);
+
+                const element = document.createElement("a");
+
+                if (format === "svg") {
+                    // Download as SVG
+                    const blob = new Blob([data], { type: "image/svg+xml" });
+                    element.href = URL.createObjectURL(blob);
+                } else if (format === "png") {
+                    // Download as PNG
+                    QRCode.toDataURL(url, { margin: 1 }, function (err, dataUrl) {
+                        if (err) return console.error(err);
+                        element.href = dataUrl;
+                    });
+                }
+
+                element.download = filename;
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            });
+        }
+
+        // Generate the initial QR code with the default link
+        generateQRCode();
+
+        // Event listener to regenerate QR code when the URL is changed
+        document.getElementById('url-input').addEventListener('input', generateQRCode);
+    </script>
+</body>
+
+</html>
